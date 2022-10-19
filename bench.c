@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 	if(memmove_total > memcpy_total)
 		printf("memcpy is time: %.2f ms\n times faster\n", memmove_total / memcpy_total);
 	else
-		printf("Surprise!\memmove is time: %.2f ms\n times faster then memcpy\n", memcpy_total / memmove_total);
+		printf("Surprise!memmove is time: %.2f ms\n times faster then memcpy\n", memcpy_total / memmove_total);
 	
 	
 	return 0;
