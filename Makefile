@@ -14,13 +14,12 @@ BIN = memcpymark.bin
 FIRSTREAD = memcpymark.bin
 # Optimize -------------------------------------------------------------------------
 //OPT= -DQUIET -DNDEBUG -O3 -g   -fstack-usage -Wstack-usage=512 -trigraphs  -ffast-math -mdiv=inv -maccumulate-outgoing-args -mpretend-cmove -Wl,--gc-sections 
-OPT=  -m4-single-only -O3  -funsafe-math-optimizations -ffinite-math-only -ffp-contract=fast  -ffast-math
+OPT=   -std=c99 -O3  -ffast-math -ffp-contract=fast -fomit-frame-pointer -flto  -mpretend-cmove -falign-loops=4 -falign-labels=2 -falign-functions=32 -falign-jumps=2
 # Defines -------------------------------------------------------------------------
 KOS_LOCAL_CFLAGS = -DDC  -flto -fwhole-program  -DUSE_ZLIB -DDREAMCAST -DMAX_MEM_LEVEL -DSDL -DLSB_FIRST -DALIGN_LONG -DINLINE -DDC -DUCHAR_MAX=0xff -DUSHRT_MAX=0xffff -DULONG_MAX=0xffffffff
 KOS_CFLAGS += $(OPT)
 # Files ---------------------------------------------------------------------------
-OBJS = bench.o memcpy.o memmove.o
-
+OBJS = bench.o memcpy.o 
 
 
 

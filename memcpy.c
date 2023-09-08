@@ -23,7 +23,7 @@ void * memcpyasm (void *dest, const void *src, size_t len)
   // Underflow would be like adding a negative offset
 
   // Can use 'd' as a scratch reg now
-  asm volatile (
+  __asm__ __volatile__ (
     "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
   ".align 2\n"
   "0:\n\t"
@@ -57,7 +57,7 @@ void * memcpy_16bit(void *dest, const void *src, size_t len)
   // Underflow would be like adding a negative offset
 
   // Can use 'd' as a scratch reg now
-  asm volatile (
+   __asm__ __volatile__ (
     "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
   ".align 2\n"
   "0:\n\t"
@@ -91,7 +91,7 @@ void * memcpy_32bit(void *dest, const void *src, size_t len)
   // Underflow would be like adding a negative offset
 
   // Can use 'd' as a scratch reg now
-  asm volatile (
+   __asm__ __volatile__ (
     "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
   ".align 2\n"
   "0:\n\t"
@@ -126,7 +126,7 @@ void * memcpy_64bit(void *dest, const void *src, size_t len)
   uint32_t diff = (uint32_t)d - (uint32_t)(s + 1); // extra offset because input gets incremented before output is calculated
   // Underflow would be like adding a negative offset
 
-  asm volatile (
+   __asm__ __volatile__ (
     "fschg\n\t"
     "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
   ".align 2\n"
@@ -162,7 +162,7 @@ void * memcpy_32bit_16Bytes(void *dest, const void *src, size_t len)
   uint32_t scratch_reg3;
   uint32_t scratch_reg4;
 
-  asm volatile (
+   __asm__ __volatile__ (
     "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
   ".align 2\n"
   "1:\n\t"
@@ -208,7 +208,7 @@ void * memcpy_64bit_32Bytes(void *dest, const void *src, size_t len)
   _Complex float double_scratch3;
   _Complex float double_scratch4;
 
-  asm volatile (
+   __asm__ __volatile__ (
     "fschg\n\t" // Switch to pair move mode (FE)
     "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
   ".align 2\n"
