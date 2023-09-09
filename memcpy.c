@@ -9,35 +9,34 @@
 // Len is (# of total bytes/1), so it's "# of 8-bits"
 // Source and destination buffers must both be 1-byte aligned (aka no alignment)
 
-void * memcpyasm (void *dest, const void *src, size_t len)
-{
-  if(!len)
-  {
+inline __attribute__((always_inline)) void *memcpyasm(void *dest, const void *src, size_t len) {
+    if (!len) {
+        return dest;
+    }
+
+    const uint8_t *s = (uint8_t *)src;
+    uint8_t *d = (uint8_t *)dest;
+
+    uint32_t diff = (uint32_t)d - (uint32_t)(s + 1); // extra offset because input gets incremented before output is calculated
+    // Underflow would be like adding a negative offset
+
+    // Can use 'd' as a scratch reg now
+    __asm__ volatile (
+        "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
+        ".align 2\n"
+        "0:\n\t"
+        "dt %[size]\n\t"        // (--len) ? 0 -> T : 1 -> T (EX 1)
+        "mov.b @%[in]+, %[scratch]\n\t" // scratch = *(s++) (LS 1/2)
+        "bf.s 0b\n\t"           // while(s != nexts) aka while(!T) (BR 1/2)
+        "mov.b %[scratch], @(%[offset], %[in])\n" // *(datatype_of_s*) ((char*)s + diff) = scratch, where src + diff = dest (LS 1)
+        : [in] "+&r" ((uint32_t)s), [scratch] "=&r" ((uint32_t)d), [size] "+&r" (len) // outputs
+        : [offset] "z" (diff) // inputs
+        : "t", "memory" // clobbers
+    );
+
     return dest;
-  }
-
-  const uint8_t *s = (uint8_t *)src;
-  uint8_t *d = (uint8_t *)dest;
-
-  uint32_t diff = (uint32_t)d - (uint32_t)(s + 1); // extra offset because input gets incremented before output is calculated
-  // Underflow would be like adding a negative offset
-
-  // Can use 'd' as a scratch reg now
-  __asm__ __volatile__ (
-    "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
-  ".align 2\n"
-  "0:\n\t"
-    "dt %[size]\n\t" // (--len) ? 0 -> T : 1 -> T (EX 1)
-    "mov.b @%[in]+, %[scratch]\n\t" // scratch = *(s++) (LS 1/2)
-    "bf.s 0b\n\t" // while(s != nexts) aka while(!T) (BR 1/2)
-    " mov.b %[scratch], @(%[offset], %[in])\n" // *(datatype_of_s*) ((char*)s + diff) = scratch, where src + diff = dest (LS 1)
-    : [in] "+&r" ((uint32_t)s), [scratch] "=&r" ((uint32_t)d), [size] "+&r" (len) // outputs
-    : [offset] "z" (diff) // inputs
-    : "t", "memory" // clobbers
-  );
-
-  return dest;
 }
+
 
 // 16-bit (2 bytes at a time)
 // Len is (# of total bytes/2), so it's "# of 16-bits"

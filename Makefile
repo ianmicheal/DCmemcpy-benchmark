@@ -14,9 +14,9 @@ BIN = memcpymark.bin
 FIRSTREAD = memcpymark.bin
 # Optimize -------------------------------------------------------------------------
 //OPT= -DQUIET -DNDEBUG -O3 -g   -fstack-usage -Wstack-usage=512 -trigraphs  -ffast-math -mdiv=inv -maccumulate-outgoing-args -mpretend-cmove -Wl,--gc-sections 
-OPT=   -std=c99 -O3  -ffast-math -ffp-contract=fast -fomit-frame-pointer -flto  -mpretend-cmove -falign-loops=4 -falign-labels=2 -falign-functions=32 -falign-jumps=2
+OPT=    -O3  -std=c99 -mpretend-cmove -Wall -Wextra -Wno-unused-parameter  -fomit-frame-pointer 
 # Defines -------------------------------------------------------------------------
-KOS_LOCAL_CFLAGS = -DDC  -flto -fwhole-program  -DUSE_ZLIB -DDREAMCAST -DMAX_MEM_LEVEL -DSDL -DLSB_FIRST -DALIGN_LONG -DINLINE -DDC -DUCHAR_MAX=0xff -DUSHRT_MAX=0xffff -DULONG_MAX=0xffffffff
+KOS_LOCAL_CFLAGS = 
 KOS_CFLAGS += $(OPT)
 # Files ---------------------------------------------------------------------------
 OBJS = bench.o memcpy.o 
