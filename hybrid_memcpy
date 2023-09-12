@@ -175,3 +175,94 @@ void* fast_memcpy(void *OUT, const void *IN, size_t N)
 		*d++=*s++;
 	return OUT;
 }
+
+void* fast_memset(const void *DST, int C, size_t LENGTH)
+{
+	register unsigned char *d=(unsigned char *)DST;
+	register unsigned dat = C & 0xff;
+	dat = (dat << 24) | (dat << 16) | (dat << 8) | dat;
+
+	if (LENGTH<LIMIT)
+	{
+#ifdef TOO_SHORT_PATCH
+		if (LENGTH>=8)
+		{
+			while (((unsigned)d)&3)
+			{
+				*d++=dat;
+				LENGTH--;
+			}
+			register int n=LENGTH>>2;
+			LENGTH-=n<<2;
+			while (n--)
+			{
+				*((unsigned *)d)=dat;
+				d+=4;
+			}
+		}
+#endif
+		while(LENGTH--)
+			*d++=dat;
+		return (void *)DST;
+	}
+	while (((unsigned)d)&3)
+	{
+		*d++=dat;
+		LENGTH--;
+	}
+	while (((unsigned)d)&31)
+	{
+		*((unsigned *)d)=dat;
+		d+=4;
+		LENGTH-=4;
+	}
+	register int n=LENGTH>>5;
+	LENGTH -= n<<5;
+	if (n)
+	{
+#ifdef DREAMCAST
+		unsigned *dsq=(unsigned *)(0xe0000000 | (((unsigned long)d) & 0x03ffffe0));
+		QACR0 = ((((unsigned int)d)>>26)<<2)&0x1c;
+		QACR1 = ((((unsigned int)d)>>26)<<2)&0x1c;
+		dsq[0]=dsq[1]=dsq[2]=dsq[3]=dsq[4]=dsq[5]=dsq[6]=dsq[7]=dsq[8]=dsq[9]=dsq[10]=dsq[11]=dsq[12]=dsq[13]=dsq[14]=dsq[15]=dat;
+#else
+		unsigned *dsq=(unsigned *)d;
+#endif
+		while (n--)
+		{
+#ifndef DREAMCAST
+			dsq[0]=dat;
+			dsq[1]=dat;
+			dsq[2]=dat;
+			dsq[3]=dat;
+			dsq[4]=dat;
+			dsq[5]=dat;
+			dsq[6]=dat;
+			dsq[7]=dat;
+#else
+			asm("ocbwb @%0" : : "r" (d));
+			asm("pref @%0" : : "r" (dsq));
+			asm("ocbi @%0" : : "r" (d));
+#endif
+			dsq+=8;
+			d+=32;
+		}
+#ifdef DREAMCAST
+		dsq=(unsigned *)0xe0000000;
+		dsq[0] = dsq[8] = 0;
+#endif
+	}
+	n=LENGTH>>2;
+	LENGTH -= n<<2;
+	while (n--)
+	{
+		*((unsigned *)d)=dat;
+		d+=4;
+	}
+	while (LENGTH--)
+		*d++=dat;
+	return (void *)DST;
+}
+
+#endif
+
