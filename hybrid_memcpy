@@ -8,10 +8,7 @@
 #undef TOO_SHORT_PATCH
 #endif
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<SDL.h>
+
 
 #if defined(__cplusplus) && !defined(USE_CPLUS)
 extern "C" {
