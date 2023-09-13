@@ -1,3 +1,4 @@
+//memcpyskip.s  andrewk@napalm
 #ifndef __MEMCPYSKIP_H__
 #define __MEMCPYSKIP_H__
 
